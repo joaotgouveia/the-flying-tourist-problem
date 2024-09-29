@@ -36,9 +36,9 @@ Variables used:
   arrives, and $d$ it's date.
 
 Hard clauses used:
-- $(\neg f_{base,a_1,d_1} \wedge \neg f_{c,a_2,d_2})$, where
+- $(\neg f_{base,a_1,d_1} \vee \neg f_{c,a_2,d_2})$, where
   $c \in V \setminus base$, and $d_2 < d_1$. This takes care of condition 1.
-- $(\neg f_{o,c,d} \wedge f_{c,a_1,d + k_c} \wedge ... \wedge f_{c,a_n,d + k_c})$,
+- $(\neg f_{o,c,d} \vee f_{c,a_1,d + k_c} \vee ... \vee f_{c,a_n,d + k_c})$,
   where $c \in V \setminus base$. This takes care of condition 2.
 - $\sum f_{o,c,d} = 1$, where $c \in V$. This takes care of condition 3.
 
