@@ -100,7 +100,6 @@ def encode(base, cities):
     # We must arrive at each city exactly once.
     for airport in cities.keys():
         arrivalIds = list(map(lambda x: x["id"], cities[airport]["arrivals"]))
-        #TODO: See best encoding to use.
         for clause in CardEnc.equals(lits=arrivalIds, top_id=formula.nv, encoding=EncType.bitwise):
             formula.append(clause)
 
