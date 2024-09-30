@@ -9,7 +9,7 @@ money as possible on flights.
 
 ## Modeling the Problem
 
-From this description, we can extract three constraints:
+From this description, we can extract three conditions:
 1. The tourist cannot take a flight before their departure from home.
 2. After arriving in a city, the tourist must depart exactly X days later.
 3. The tourist will arrive in each city exactly once.
