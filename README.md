@@ -78,7 +78,7 @@ the clause used to ensure condition 2.
 Instead of including the negation of flight $f_{o,c,d}$ and all flights that
 depart from $c$ on the date $d + k_c$, we extend this clause to include all
 flights that depart from $c$ on the date $d_1$, where
-$d + min-number-of-nights \leq d_1 \leq d + max-number-of-nights$.
+$d + minNumberOfNights \leq d_1 \leq d + maxNumberOfNights$.
 
 ## Installing and Running
 
