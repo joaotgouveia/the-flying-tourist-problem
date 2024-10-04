@@ -1,4 +1,4 @@
-from pysat.examples.rc2 import RC2
+from pysat.examples.rc2 import RC2Stratified
 from pysat.formula import WCNF
 from pysat.card import CardEnc, EncType
 import datetime
@@ -7,9 +7,7 @@ def parse():
     # Number of cities to visit
     n = int(input())
 
-    # Dictionary of cities to visit with entries in the form
-    # {name: Name, stay: StayDuration, arrivals: [], departures: []}.
-    # The key is the airport code.
+    # Dictionary of cities to visit, the key is the airport code.
     base = input().split()
     cities = {base[1]: {"name": base[0], "arrivals":[], "departures": []}}
     for _ in range(n - 1):
@@ -23,17 +21,6 @@ def parse():
 
     # Number of flights available
     m = int(input())
-
-    # Flight entries in the form:
-    # {
-    #     date: Date,
-    #     departure: Departure,
-    #     arrival: Arrival,
-    #     departureTime: DepartureTime,
-    #     arrivalTime: ArrivalTime,
-    #     cost: Cost
-    #     id: Id
-    # }
 
     for i in range(m):
         line = input().split()
@@ -62,11 +49,9 @@ def printModel(model, cities):
         takenFlights = []
         for airport in cities.keys():
             for flight in cities[airport]["arrivals"]:
-                if model[flight["id"] - 1 ] > 0:
+                if model[flight["id"] - 1] > 0:
                     takenFlights.append(flight)
-                    cost += flight["cost"]
 
-        print(cost)
         takenFlights.sort(key=(lambda x: x["date"]))
         for flight in takenFlights:
             print((f"{flight['date'].strftime('%d/%m')} "
@@ -82,7 +67,7 @@ def encode(base, cities):
         for airport in cities.keys():
             if airport != base[1]:
                 for flight in cities[airport]["departures"]:
-                    if flight["date"] < departure["date"]:
+                    if not flight["date"] > departure["date"]:
                         formula.append([-departure["id"], -flight["id"]])
 
     # After arriving in a city, we must depart exactly K days later.
@@ -97,21 +82,27 @@ def encode(base, cities):
                         clause.append(departure["id"])
                 formula.append(clause)
 
-    # We must arrive at each city exactly once.
+    # We must arrive and depart from each city exactly once.
     for airport in cities.keys():
         arrivalIds = list(map(lambda x: x["id"], cities[airport]["arrivals"]))
         for clause in CardEnc.equals(lits=arrivalIds, top_id=formula.nv, encoding=EncType.bitwise):
             formula.append(clause)
 
+        departureIds = list(map(lambda x: x["id"], cities[airport]["departures"]))
+        for clause in CardEnc.equals(lits=departureIds, top_id=formula.nv, encoding=EncType.bitwise):
+            formula.append(clause)
+
     # Soft clauses
     for airport in cities.keys():
         for flight in cities[airport]["departures"]:
-            formula.append([flight["id"]], 1/flight["cost"])
+            formula.append([-flight["id"]], flight["cost"])
 
     return formula
 
 if __name__ == "__main__":
     base, cities = parse()
     formula = encode(base, cities)
-    solver = RC2(formula)
-    printModel(solver.compute(), cities)
+    solver = RC2Stratified(formula, blo='full')
+    model = solver.compute()
+    print(solver.cost)
+    printModel(model, cities)
