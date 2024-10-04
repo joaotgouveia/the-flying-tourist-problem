@@ -49,8 +49,11 @@ def printModel(model, cities):
         takenFlights = []
         for airport in cities.keys():
             for flight in cities[airport]["arrivals"]:
-                if model[flight["id"] - 1] > 0:
-                    takenFlights.append(flight)
+                for flightID in model:
+                    if abs(flightID) == flight["id"]:
+                        if flightID > 0:
+                            takenFlights.append(flight)
+                        break
 
         takenFlights.sort(key=(lambda x: x["date"]))
         for flight in takenFlights:
