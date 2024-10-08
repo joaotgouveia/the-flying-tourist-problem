@@ -105,7 +105,7 @@ def encode(base, cities):
 if __name__ == "__main__":
     base, cities = parse()
     formula = encode(base, cities)
-    solver = RC2Stratified(formula, blo='full')
+    solver = RC2Stratified(formula, solver='g42', blo='full')
     model = solver.compute()
     print(solver.cost)
     printModel(model, cities)
