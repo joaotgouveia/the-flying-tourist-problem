@@ -3,13 +3,14 @@ from pysat.formula import WCNF
 from pysat.card import CardEnc, EncType
 import datetime
 
+
 def parse():
     # Number of cities to visit
     n = int(input())
 
     # Dictionary of cities to visit, the key is the airport code.
     base = input().split()
-    cities = {base[1]: {"name": base[0], "arrivals":[], "departures": []}}
+    cities = {base[1]: {"name": base[0], "arrivals": [], "departures": []}}
     for _ in range(n - 1):
         city = input().split()
         cities[city[1]] = {
@@ -35,7 +36,7 @@ def parse():
             "departureTime": line[3],
             "arrivalTime": line[4],
             "cost": int(line[5]),
-            "id": i + 1
+            "id": i + 1,
         }
 
         cities[line[1]]["departures"].append(flight)
@@ -43,9 +44,9 @@ def parse():
 
     return base, cities
 
+
 def printModel(model, cities):
-    if model != None:
-        cost = 0
+    if model is not None:
         takenFlights = []
         for airport in cities.keys():
             for flight in cities[airport]["arrivals"]:
@@ -57,10 +58,15 @@ def printModel(model, cities):
 
         takenFlights.sort(key=(lambda x: x["date"]))
         for flight in takenFlights:
-            print((f"{flight['date'].strftime('%d/%m')} "
-            f"{cities[flight['departure']]['name']} "
-            f"{cities[flight['arrival']]['name']} "
-            f"{flight['departureTime']} {flight['cost']}"))
+            print(
+                (
+                    f"{flight['date'].strftime('%d/%m')} "
+                    f"{cities[flight['departure']]['name']} "
+                    f"{cities[flight['arrival']]['name']} "
+                    f"{flight['departureTime']} {flight['cost']}"
+                )
+            )
+
 
 def encode(base, cities):
     formula = WCNF()
@@ -88,11 +94,15 @@ def encode(base, cities):
     # We must arrive and depart from each city exactly once.
     for airport in cities.keys():
         arrivalIds = list(map(lambda x: x["id"], cities[airport]["arrivals"]))
-        for clause in CardEnc.equals(lits=arrivalIds, top_id=formula.nv, encoding=EncType.bitwise):
+        for clause in CardEnc.equals(
+            lits=arrivalIds, top_id=formula.nv, encoding=EncType.bitwise
+        ):
             formula.append(clause)
 
         departureIds = list(map(lambda x: x["id"], cities[airport]["departures"]))
-        for clause in CardEnc.equals(lits=departureIds, top_id=formula.nv, encoding=EncType.bitwise):
+        for clause in CardEnc.equals(
+            lits=departureIds, top_id=formula.nv, encoding=EncType.bitwise
+        ):
             formula.append(clause)
 
     # Soft clauses
@@ -102,10 +112,11 @@ def encode(base, cities):
 
     return formula
 
+
 if __name__ == "__main__":
     base, cities = parse()
     formula = encode(base, cities)
-    solver = RC2Stratified(formula, solver='g42', blo='full')
+    solver = RC2Stratified(formula, solver="g42", blo="full")
     model = solver.compute()
     print(solver.cost)
     printModel(model, cities)
